@@ -10,7 +10,10 @@ import styles from './BookForm.module.css';
 import { updateBook, addBook } from '../../../lib/common';
 
 function BookForm({ book, validate }) {
-  const userRating = book ? book.ratings.find((elt) => elt.userId === localStorage.getItem('userId'))?.grade : 0;
+  const userRating = book
+    ? book.ratings.find((elt) => elt.userId === localStorage.getItem('userId'))
+      ?.grade
+    : 0;
 
   const [rating, setRating] = useState(0);
 
@@ -18,12 +21,15 @@ function BookForm({ book, validate }) {
   const {
     register, watch, formState, handleSubmit, reset,
   } = useForm({
-    defaultValues: useMemo(() => ({
-      title: book?.title,
-      author: book?.author,
-      year: book?.year,
-      genre: book?.genre,
-    }), [book]),
+    defaultValues: useMemo(
+      () => ({
+        title: book?.title,
+        author: book?.author,
+        year: book?.year,
+        genre: book?.genre,
+      }),
+      [book],
+    ),
   });
   useEffect(() => {
     reset(book);
@@ -110,7 +116,6 @@ function BookForm({ book, validate }) {
               <p>Ajouter une image</p>
             </>
           )}
-
         </div>
         <input {...register('file')} type="file" id="file" />
       </label>
@@ -129,10 +134,12 @@ BookForm.propTypes = {
     year: PropTypes.number,
     imageUrl: PropTypes.string,
     genre: PropTypes.string,
-    ratings: PropTypes.arrayOf(PropTypes.shape({
-      userId: PropTypes.string,
-      grade: PropTypes.number,
-    })),
+    ratings: PropTypes.arrayOf(
+      PropTypes.shape({
+        userId: PropTypes.string,
+        grade: PropTypes.number,
+      }),
+    ),
     averageRating: PropTypes.number,
   }),
   validate: PropTypes.func,

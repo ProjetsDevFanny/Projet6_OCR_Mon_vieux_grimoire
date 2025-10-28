@@ -32,7 +32,9 @@ function Book() {
 
   useEffect(() => {
     if (!userLoading && connectedUser && book?.title) {
-      const rate = book.ratings.find((elt) => elt.userId === connectedUser.userId);
+      const rate = book.ratings.find(
+        (elt) => elt.userId === connectedUser.userId,
+      );
       if (rate) {
         setUserRated(true);
         setRating(parseInt(rate.grade, 10));
@@ -61,12 +63,15 @@ function Book() {
     }
   };
 
-  const loadingContent = (<h1>Chargement ...</h1>);
+  const loadingContent = <h1>Chargement ...</h1>;
 
   const bookContent = !loading && !book.delete ? (
     <div>
       <div className={styles.Book}>
-        <div className={styles.BookImage} style={{ backgroundImage: `url("${book.imageUrl}")` }} />
+        <div
+          className={styles.BookImage}
+          style={{ backgroundImage: `url("${book.imageUrl}")` }}
+        />
         <div className={styles.BookContent}>
           {book?.userId === connectedUser?.userId ? (
             <div className={styles.Owner}>
@@ -74,7 +79,14 @@ function Book() {
               <p>
                 <Link to={`/livre/modifier/${book.id}`}>modifier</Link>
                 {' '}
-                <span tabIndex={0} role="button" onKeyUp={onDelete} onClick={onDelete}>supprimer</span>
+                <span
+                  tabIndex={0}
+                  role="button"
+                  onKeyUp={onDelete}
+                  onClick={onDelete}
+                >
+                  supprimer
+                </span>
                 {' '}
               </p>
             </div>
@@ -98,9 +110,12 @@ function Book() {
     <div className={styles.Deleted}>
       <h1>{book.title}</h1>
       <p>a bien été supprimé</p>
-      <img src={BookDeleteImage} alt={`Le livre ${book.title} a bien été supprimé`} />
+      <img
+        src={BookDeleteImage}
+        alt={`Le livre ${book.title} a bien été supprimé`}
+      />
       <Link to="/">
-        <button type="button">{'Retour à l\'accueil'}</button>
+        <button type="button">Retour à l&apos;accueil</button>
       </Link>
     </div>
   ) : null;
@@ -109,11 +124,8 @@ function Book() {
     <div className="content-container">
       <BackArrow />
       {loading ? loadingContent : null}
-      <div className={styles.BookContainer}>
-        {bookContent}
-      </div>
+      <div className={styles.BookContainer}>{bookContent}</div>
       {book?.delete ? deletedContent : null}
-
     </div>
   );
 }
