@@ -1,0 +1,79 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+########################################
+# FRONTEND (React / Vite / CRA)
+########################################
+/frontend/node_modules/
+# Build output
+/frontend/build/
+/frontend/dist/   # si Vite utilisé
+
+# Env files
+/frontend/.env
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
+
+# Logs
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+
+# IDE / Editor
+/frontend/cursor/  
+frontend/.vscode/   
+
+# Misc
+/frontend/.DS_Store
+
+########################################
+# BACKEND (Node / Express)
+########################################
+/backend/node_modules/
+
+# Logs
+/backend/npm-debug.log*
+/backend/yarn-debug.log*
+/backend/yarn-error.log*
+
+# Env files
+/backend/.env
+
+# Uploaded / generated files
+/backend/uploads/
+/backend/build/   
+
+# IDE / Editor
+/backend/.cursor/
+/backend/.vscode/
+/backend/.idea/
+
+# Misc
+/backend/.DS_Store
+
+########################################
+# DOCKER
+########################################
+*.dockerignore
+Dockerfile
+docker-compose.yml
+
+########################################
+# RACINE / COMMUN
+########################################
+# Node modules globaux
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs globaux
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ESLint / fin de ligne
+*.eslintcache
+*.log
