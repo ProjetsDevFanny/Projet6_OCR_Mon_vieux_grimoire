@@ -14,7 +14,7 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ Connexion à MongoDB réussie !'))
   .catch(err => console.log('❌ Connexion à MongoDB échouée !', err));
 
-// Middleware
+// Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -30,7 +30,7 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use('/api/book', bookRoutes); 
+app.use('/api/books', bookRoutes); 
 app.use('/api/auth', userRoutes);
 
 // Route statique pour les images (middleware "static")
