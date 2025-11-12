@@ -6,9 +6,29 @@ exports.createBook = (req, res, next) => {
   const bookObject = JSON.parse(req.body.book);
   delete bookObject._id;
   delete bookObject._userId;
+  if (!req.file) {
+    return res.status(400).json({ message: 'Aucune image fournie.' });
+  }
+
+  const ratings = (bookObject.ratings || []).map((ratingEntry) => ({
+    userId: ratingEntry.userId,
+    grade: Number(ratingEntry.grade),
+  }));
+
+  const averageRating = ratings.length
+    ? Number(
+        (
+          ratings.reduce((acc, ratingEntry) => acc + ratingEntry.grade, 0) /
+          ratings.length
+        ).toFixed(1)
+      )
+    : 0;
+
   const book = new Book({
     ...bookObject,
     userId: req.auth.userId,
+    ratings,
+    averageRating,
     imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
   });
   return book.save()
@@ -35,10 +55,12 @@ exports.getOneBook = (req, res, next) => {
 
 // Fonction de modification d'un livre
 exports.modifyBook = (req, res, next) => {
-  const bookObject = req.file ? {
-    ...JSON.parse(req.body.book),
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-  } : { ...req.body };
+  const bookObject = req.file
+    ? {
+        ...JSON.parse(req.body.book),
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+      }
+    : { ...req.body };
 
   delete bookObject._userId;
 
@@ -47,6 +69,10 @@ exports.modifyBook = (req, res, next) => {
       if (book.userId != req.auth.userId) {
         res.status(401).json({ message: 'Not authorized' });
       } else {
+        if (req.file && book.imageUrl) {
+          const filename = book.imageUrl.split('/images/')[1];
+          fs.unlink(`images/${filename}`, () => {});
+        }
         Book.updateOne({ _id: req.params.id }, { ...bookObject, _id: req.params.id })
           .then(() => res.status(200).json({ message: 'Livre modifié!' }))
           .catch(error => res.status(401).json({ error }));
@@ -79,15 +105,51 @@ exports.deleteBook = (req, res, next) => {
 
 // Fonction de récupération de tous les livres
 exports.getAllBook = (req, res, next) => {
-  Book.find().then(
-    (books) => {
-      res.status(200).json(books);
-    }
-  ).catch(
-    (error) => {
-      res.status(400).json({
-        error: error
-      });
-    }
-  );
+  Book.find()
+    .then((books) => res.status(200).json(books))
+    .catch((error) => res.status(400).json({ error }));
+};
+
+// Fonction de récupération des livres les mieux notés
+exports.getBestRatedBooks = (req, res) => {
+  Book.find()
+    .sort({ averageRating: -1 })
+    .limit(3)
+    .then((books) => res.status(200).json(books))
+    .catch((error) => res.status(400).json({ error }));
+};
+
+// Fonction de notation d'un livre
+exports.rateBook = (req, res) => {
+  const { rating } = req.body;
+  const grade = parseInt(rating, 10);
+
+  if (Number.isNaN(grade) || grade < 0 || grade > 5) {
+    return res.status(400).json({ message: 'La note doit être comprise entre 0 et 5.' });
+  }
+
+  return Book.findOne({ _id: req.params.id })
+    .then((book) => {
+      if (!book) {
+        return res.status(404).json({ message: 'Livre introuvable.' });
+      }
+
+      const existingRating = book.ratings.find((r) => r.userId === req.auth.userId);
+      if (existingRating) {
+        existingRating.grade = grade;
+      } else {
+        book.ratings.push({
+          userId: req.auth.userId,
+          grade,
+        });
+      }
+
+      const total = book.ratings.reduce((acc, r) => acc + r.grade, 0);
+      book.averageRating = Number((total / book.ratings.length).toFixed(1));
+
+      return book.save()
+        .then((updatedBook) => res.status(200).json(updatedBook))
+        .catch((error) => res.status(400).json({ error }));
+    })
+    .catch((error) => res.status(400).json({ error }));
 };
