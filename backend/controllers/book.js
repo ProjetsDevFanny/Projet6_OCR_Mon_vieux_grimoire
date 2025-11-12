@@ -1,7 +1,14 @@
+// @ts-check
+
 const Book = require('../models/book');
 const fs = require('fs');
 
 // Fonction de création d'un livre
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
 exports.createBook = (req, res, next) => {
   const bookObject = JSON.parse(req.body.book);
   delete bookObject._id;
@@ -38,6 +45,7 @@ exports.createBook = (req, res, next) => {
 
 // Fonction de récupération d'un livre
 exports.getOneBook = (req, res, next) => {
+  // console.log('req.params.id', req.params.id);
   Book.findOne({
     _id: req.params.id
   }).then(
