@@ -17,20 +17,18 @@ exports.createBook = (req, res, next) => {
     return res.status(400).json({ message: 'Aucune image fournie.' });
   }
 
+  // Conversion des notes en objet
   const ratings = (bookObject.ratings || []).map((ratingEntry) => ({
     userId: ratingEntry.userId,
     grade: Number(ratingEntry.grade),
   }));
 
+  // Calcul de la moyenne des notes
   const averageRating = ratings.length
-    ? Number(
-        (
-          ratings.reduce((acc, ratingEntry) => acc + ratingEntry.grade, 0) /
-          ratings.length
-        ).toFixed(1)
-      )
+    ? Number((ratings.reduce((acc, objectRating) => acc + objectRating.grade, 0) / ratings.length).toFixed(1))
     : 0;
 
+  // Création du livre
   const book = new Book({
     ...bookObject,
     userId: req.auth.userId,
@@ -88,7 +86,7 @@ exports.modifyBook = (req, res, next) => {
     })
     .catch((error) => {
       res.status(400).json({ error });
-    });
+    });  
 };
 
 // Fonction de suppression d'un livre
@@ -132,29 +130,35 @@ exports.rateBook = (req, res) => {
   const { rating } = req.body;
   const grade = parseInt(rating, 10);
 
+  // Vérification de la note
   if (Number.isNaN(grade) || grade < 0 || grade > 5) {
     return res.status(400).json({ message: 'La note doit être comprise entre 0 et 5.' });
   }
 
+  // Récupération du livre
   return Book.findOne({ _id: req.params.id })
     .then((book) => {
       if (!book) {
         return res.status(404).json({ message: 'Livre introuvable.' });
       }
 
-      const existingRating = book.ratings.find((r) => r.userId === req.auth.userId);
+      // Vérification si l'utilisateur a déjà noté le livre
+      const existingRating = book.ratings.find((objectRating) => objectRating.userId === req.auth.userId);
       if (existingRating) {
-        existingRating.grade = grade;
+        existingRating.grade = grade; 
       } else {
+        // Sinon, on créer un nouvel objet (userId et grade) et on l'ajoute à la liste des notes
         book.ratings.push({
           userId: req.auth.userId,
           grade,
         });
       }
 
-      const total = book.ratings.reduce((acc, r) => acc + r.grade, 0);
+      // Calcul de la moyenne des notes
+      const total = book.ratings.reduce((acc, objectRating) => acc + objectRating.grade, 0);
       book.averageRating = Number((total / book.ratings.length).toFixed(1));
 
+      // Enregistrement du livre
       return book.save()
         .then((updatedBook) => res.status(200).json(updatedBook))
         .catch((error) => res.status(400).json({ error }));
