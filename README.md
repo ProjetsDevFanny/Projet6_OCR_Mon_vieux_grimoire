@@ -1,4 +1,4 @@
-# Backend - Mon Vieux Grimoire - Formation dev web - Openclassrooms
+# Backend - Mon Vieux Grimoire
 
 ![Capture d'écran de l'application](localhost_3000_.png)
 
