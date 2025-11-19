@@ -14,11 +14,11 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ Connexion à MongoDB réussie !'))
   .catch(err => console.log('❌ Connexion à MongoDB échouée !', err));
 
-// Middlewares
+// Middlewares pour parser les requêtes JSON et URL-encoded
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Headers CORS
+// Middleware pour les headers CORS
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
@@ -29,11 +29,16 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
+// Middleware pour les routes
 app.use('/api/books', bookRoutes); 
 app.use('/api/auth', userRoutes);
 
-// Route statique pour les images (middleware "static")
-app.use('/images', express.static(path.join(__dirname, 'images')));
+// Middleware pour les images (middleware "static") avec cache optimisé
+app.use('/images', express.static(path.join(__dirname, 'images'), {
+  setHeaders: (res, path) => {
+    // Headers de cache pour les images
+    res.set('Cache-Control', 'public, max-age=31536000'); // 1 an
+  }
+}));
 
 module.exports = app;

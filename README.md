@@ -55,9 +55,9 @@ Ce projet présente le **backend complet** d'une API REST pour une application d
 ### Structure du Projet
 ```
 backend/
-├── app.js                 # Configuration Express et middlewares
-├── server.js              # Démarrage du serveur HTTP
-├── controllers/           # Logique métier
+├── server.js             # Démarrage du serveur HTTPC
+├── app.js                # Configuration Express et middlewares
+├── controllers/          # Logique métier
 │   ├── book.js           # CRUD livres + notation
 │   └── user.js           # Authentification (signup/login)
 ├── models/               # Schémas Mongoose

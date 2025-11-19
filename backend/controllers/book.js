@@ -40,7 +40,7 @@ exports.createBook = (req, res, next) => {
     .then(() => res.status(201).json({ message: 'Livre enregistré !' }))
     .catch(error => res.status(400).json({ error }));
 };
-
+                  
 // Fonction de récupération d'un livre
 exports.getOneBook = (req, res, next) => {
   // console.log('req.params.id', req.params.id);
