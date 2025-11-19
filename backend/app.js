@@ -36,7 +36,7 @@ app.use('/api/auth', userRoutes);
 // Middleware pour les images (middleware "static") avec cache optimisé
 app.use('/images', express.static(path.join(__dirname, 'images'), {
   setHeaders: (res, path) => {
-    // Headers de cache pour les images
+    // Headers de cache public pour les images
     res.set('Cache-Control', 'public, max-age=31536000'); // 1 an
   }
 }));
