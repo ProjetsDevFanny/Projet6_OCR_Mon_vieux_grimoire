@@ -61,6 +61,10 @@ exports.getOneBook = (req, res, next) => {
 
 // Fonction de modification d'un livre
 exports.modifyBook = (req, res, next) => {
+  // console.log pour vérifier les données reçues
+  console.log(req.body);
+  console.log(req.body.book);
+  console.log(req.file);
   const bookObject = req.file
     ? {
         ...JSON.parse(req.body.book),
@@ -79,7 +83,7 @@ exports.modifyBook = (req, res, next) => {
           const filename = book.imageUrl.split('/images/')[1];
           fs.unlink(`images/${filename}`, () => {});
         }
-        Book.updateOne({ _id: req.params.id }, { ...bookObject, _id: req.params.id })
+        Book.updateOne({ _id: req.params.id }, { ...bookObject })
           .then(() => res.status(200).json({ message: 'Livre modifié!' }))
           .catch(error => res.status(401).json({ error }));
       }
