@@ -62,9 +62,6 @@ exports.getOneBook = (req, res, next) => {
 // Fonction de modification d'un livre
 exports.modifyBook = (req, res, next) => {
   // console.log pour vérifier les données reçues
-  console.log(req.body);
-  console.log(req.body.book);
-  console.log(req.file);
   const bookObject = req.file
     ? {
         ...JSON.parse(req.body.book),
@@ -76,9 +73,11 @@ exports.modifyBook = (req, res, next) => {
 
   Book.findOne({ _id: req.params.id })
     .then((book) => {
+      // Seul l'utilisateur propriétaire du livre peut le modifier
       if (book.userId != req.auth.userId) {
         res.status(401).json({ message: 'Not authorized' });
       } else {
+        // Si un nouvel image est fournie, on supprime l'ancienne
         if (req.file && book.imageUrl) {
           const filename = book.imageUrl.split('/images/')[1];
           fs.unlink(`images/${filename}`, () => {});
