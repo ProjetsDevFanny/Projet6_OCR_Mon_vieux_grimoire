@@ -14,7 +14,11 @@ const convertToWebp = (req, res, next) => {
   const newFilePath = path.join(dir, nameWithoutExt + '.webp');
 
   sharp(filePath)
-    .webp({ quality: 80 }) // qualité 80% pour un bon compromis
+    .resize(600, 300, {     
+      fit: 'inside',         
+      withoutEnlargement: true 
+    })
+    .webp({ quality: 75 }) 
     .toFile(newFilePath)
     .then(() => {
       fs.unlinkSync(filePath); // supprime l'original
