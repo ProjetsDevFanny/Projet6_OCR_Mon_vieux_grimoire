@@ -6,6 +6,8 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const app = express();
 const path = require('path');
+const bookRoutes = require('./routes/book');
+const userRoutes = require('./routes/user');
 
 // Import des middlewares de sécurité rateLimit
 // const { generalLimiter } = require('./middleware/rateLimit');
@@ -14,9 +16,6 @@ const path = require('path');
 app.use('/api', helmet());  // S'applique seulement aux routes /api/*
 
 // Les images /images/* ne passent pas par Helmet
-
-const bookRoutes = require('./routes/book');
-const userRoutes = require('./routes/user');
 
 // Connexion à MongoDB
 mongoose.connect(process.env.MONGO_URI)

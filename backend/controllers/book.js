@@ -18,10 +18,18 @@ exports.createBook = (req, res, next) => {
   }
 
   // Conversion des notes en objet
-  const ratings = (bookObject.ratings || []).map((ratingEntry) => ({
+  let ratings = (bookObject.ratings || []).map((ratingEntry) => ({
     userId: ratingEntry.userId,
     grade: Number(ratingEntry.grade),
   }));
+
+  // Si le créateur donne une note initiale (étoiles), l'ajouter
+  if (bookObject.rating !== undefined && bookObject.rating >= 0 && bookObject.rating <= 5) {
+    ratings.push({
+      userId: req.auth.userId,
+      grade: Number(bookObject.rating),
+    });
+  }
 
   // Calcul de la moyenne des notes
   const averageRating = ratings.length
@@ -37,7 +45,14 @@ exports.createBook = (req, res, next) => {
     imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
   });
   return book.save()
-    .then(() => res.status(201).json({ message: 'Livre enregistré !' }))
+    .then((book) => res.status(201).json({
+      message: 'Livre enregistré !',
+      book: {
+        _id: book._id,
+        title: book.title,
+        author: book.author
+      }
+    }))
     .catch(error => res.status(400).json({ error }));
 };
                   
@@ -67,7 +82,7 @@ exports.modifyBook = (req, res, next) => {
         ...JSON.parse(req.body.book),
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
       }
-    : { ...req.body };
+      : JSON.parse(req.body.book);
 
   delete bookObject._userId;
 
@@ -83,7 +98,10 @@ exports.modifyBook = (req, res, next) => {
           fs.unlink(`images/${filename}`, () => {});
         }
         Book.updateOne({ _id: req.params.id }, { ...bookObject })
-          .then(() => res.status(200).json({ message: 'Livre modifié!' }))
+          .then(() => res.status(200).json({
+            message: 'Livre modifié !',
+            book: bookObject
+          }))
           .catch(error => res.status(401).json({ error }));
       }
     })
@@ -145,12 +163,17 @@ exports.rateBook = (req, res) => {
         return res.status(404).json({ message: 'Livre introuvable.' });
       }
 
+      // Vérification si l'utilisateur est le créateur du livre
+      if (book.userId === req.auth.userId) {
+        return res.status(403).json({ message: 'Vous ne pouvez pas noter votre propre livre.' });
+      }
+
       // Vérification si l'utilisateur a déjà noté le livre
       const existingRating = book.ratings.find((objectRating) => objectRating.userId === req.auth.userId);
       if (existingRating) {
-        existingRating.grade = grade; 
+        return res.status(403).json({ message: 'Vous avez déjà noté ce livre.' });
       } else {
-        // Sinon, on créer un nouvel objet (userId et grade) et on l'ajoute à la liste des notes
+        // Première et unique notation
         book.ratings.push({
           userId: req.auth.userId,
           grade,
