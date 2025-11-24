@@ -1,10 +1,19 @@
 // app.js: Fichier principal de l'application Node.js
 
 const express = require('express');
+const helmet = require('helmet');
 require('dotenv').config();
 const mongoose = require('mongoose');
 const app = express();
 const path = require('path');
+
+// Import des middlewares de sécurité rateLimit
+// const { generalLimiter } = require('./middleware/rateLimit');
+
+// Helmet seulement pour les routes API, pas pour les images
+app.use('/api', helmet());  // S'applique seulement aux routes /api/*
+
+// Les images /images/* ne passent pas par Helmet
 
 const bookRoutes = require('./routes/book');
 const userRoutes = require('./routes/user');
@@ -29,8 +38,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// Middleware de limitation de taux pour les routes API seulement
+// app.use('/api/', generalLimiter);
+
 // Middleware pour les routes
-app.use('/api/books', bookRoutes); 
+app.use('/api/books', bookRoutes);
 app.use('/api/auth', userRoutes);
 
 // Middleware pour les images (middleware "static") avec cache optimisé
