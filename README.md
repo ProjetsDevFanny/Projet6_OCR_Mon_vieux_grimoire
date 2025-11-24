@@ -2,8 +2,6 @@
 
 ![Capture d'écran de l'application](localhost_3000_.png)
 
-🔗 **Site déployé** : [Lien vers l'application](https://votre-lien-deploiement.com) *(à venir)*
-
 ## 📋 Présentation
 
 Ce projet présente le **backend complet** d'une API REST pour une application de gestion de livres avec système de notation. Le développement a été entièrement réalisé sur la partie backend, mettant en œuvre une architecture moderne et sécurisée.
