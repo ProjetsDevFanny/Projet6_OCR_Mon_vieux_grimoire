@@ -10,7 +10,7 @@ const bookRoutes = require('./routes/book');
 const userRoutes = require('./routes/user');
 
 // Import des middlewares de sécurité rateLimit
-// const { generalLimiter } = require('./middleware/rateLimit');
+const { generalLimiter } = require('./middleware/rateLimit');
 
 // Helmet seulement pour les routes API, pas pour les images
 app.use('/api', helmet());  // S'applique seulement aux routes /api/*
@@ -38,7 +38,7 @@ app.use((req, res, next) => {
 });
 
 // Middleware de limitation de taux pour les routes API seulement
-// app.use('/api/', generalLimiter);
+app.use('/api/', generalLimiter);
 
 // Middleware pour les routes
 app.use('/api/books', bookRoutes);
