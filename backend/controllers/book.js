@@ -82,7 +82,7 @@ exports.modifyBook = (req, res, next) => {
         ...JSON.parse(req.body.book),
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
       }
-      : JSON.parse(req.body.book);
+      : req.body.book ? JSON.parse(req.body.book) : { ...req.body };
 
   delete bookObject._userId;
 
@@ -120,7 +120,7 @@ exports.deleteBook = (req, res, next) => {
         const filename = book.imageUrl.split('/images/')[1];
         fs.unlink(`images/${filename}`, () => {
           Book.deleteOne({ _id: req.params.id })
-            .then(() => { res.status(200).json({ message: 'Livre supprimé !' }) })
+            .then(() => { res.status(200).json({ message: 'Livre supprimé !', title: book.title, id: book._id }) })
             .catch(error => res.status(401).json({ error }));
         });
       }
