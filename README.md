@@ -10,12 +10,14 @@ Ce projet présente le **backend complet** d'une API REST pour une application d
 
 ## 🎯 Compétences Développées
 
-- Développement d'API REST complète
+- Développement d'API REST complète et sécurisée
 - Architecture backend modulaire et maintenable
-- Sécurisation d'une application (authentification, autorisation)
+- Sécurisation avancée d'une application (authentification JWT, Helmet, rate limiting)
 - Gestion de base de données NoSQL avec Mongoose
-- Upload et gestion de fichiers
+- Upload, optimisation et gestion de fichiers (Multer + Sharp)
 - Implémentation de logique métier complexe (système de notation)
+- Tests et validation d'API (Postman, DevTools Network)
+- Optimisation des performances (compression images, cache, rate limiting)
 - Bonnes pratiques de développement Node.js/Express
 
 ## 🛠️ Technologies et Techniques Mises en Œuvre
@@ -31,10 +33,13 @@ Ce projet présente le **backend complet** d'une API REST pour une application d
 ### Sécurité et Authentification
 - **JWT (JSON Web Tokens)** : Système d'authentification par tokens pour sécuriser les routes
 - **bcrypt 6.0.0** : Hachage sécurisé des mots de passe avec algorithme de chiffrement unidirectionnel
+- **Helmet 7.1.0** : Sécurisation des headers HTTP (protection XSS, clickjacking, etc.)
+- **express-rate-limit 7.2.0** : Limitation du taux de requêtes pour prévenir les attaques par déni de service
 - **Middleware d'authentification personnalisé** : Vérification et validation des tokens JWT sur les routes protégées
 
 ### Gestion des Fichiers
 - **Multer 2.0.2** : Middleware pour la gestion des uploads de fichiers (images)
+- **Sharp 0.33.3** : Bibliothèque de traitement d'images haute performance pour l'optimisation et la conversion (redimensionnement, format WebP)
 - **Configuration personnalisée** : Gestion du stockage sur disque, validation des types MIME, génération de noms de fichiers uniques
 
 ### Configuration et Environnement
@@ -53,7 +58,7 @@ Ce projet présente le **backend complet** d'une API REST pour une application d
 ### Structure du Projet
 ```
 backend/
-├── server.js             # Démarrage du serveur HTTPC
+├── server.js             # Démarrage du serveur HTTP
 ├── app.js                # Configuration Express et middlewares
 ├── controllers/          # Logique métier
 │   ├── book.js           # CRUD livres + notation
@@ -66,8 +71,11 @@ backend/
 │   └── user.js           # Routes /api/auth
 ├── middleware/           # Middlewares personnalisés
 │   ├── auth.js           # Vérification JWT
-│   └── multer-config.js  # Configuration upload images
-└── images/               # Stockage des images uploadées
+│   ├── multer-config.js  # Configuration upload images
+│   ├── sharp.js          # Optimisation et conversion d'images
+│   └── rateLimit.js      # Configuration des limites de taux
+├── images/               # Stockage des images uploadées
+└── .env                  # Variables d'environnement
 ```
 
 ## 📝 Points Techniques Remarquables
@@ -105,9 +113,34 @@ backend/
 
 1. **Authentification JWT** : Toutes les routes sensibles sont protégées
 2. **Hachage bcrypt** : Mots de passe jamais stockés en clair
-3. **Vérification de propriété** : Seul le créateur peut modifier/supprimer son livre
-4. **Validation des entrées** : Contrôle des types, formats et plages de valeurs
-5. **Gestion des erreurs sécurisée** : Messages d'erreur génériques pour éviter les fuites
+3. **Helmet** : Protection contre les vulnérabilités XSS, clickjacking, injection de contenu
+4. **Rate Limiting** : Prévention des attaques par déni de service (DDoS)
+5. **Vérification de propriété** : Seul le créateur peut modifier/supprimer son livre
+6. **Validation des entrées** : Contrôle des types, formats et plages de valeurs
+7. **Gestion des erreurs sécurisée** : Messages d'erreur génériques pour éviter les fuites
+
+## 🧪 Tests et Validation
+
+### Tests avec Postman
+
+L'API a été testée exhaustivement avec Postman pour valider tous les endpoints :
+
+- **Authentification** : Tests des routes `/api/auth/signup` et `/api/auth/login`
+- **CRUD Livres** : Tests complets des opérations Create, Read, Update, Delete
+- **Système de notation** : Validation des notes (0-5), calcul des moyennes
+- **Upload d'images** : Tests avec fichiers `multipart/form-data`
+- **Sécurité** : Vérification des tokens JWT, autorisations par propriétaire
+- **Gestion d'erreurs** : Tests des codes HTTP 400, 401, 404, 500
+
+### Tests avec Chrome DevTools Network
+
+Utilisation des DevTools pour analyser les performances et la sécurité :
+
+- **Headers de sécurité** : Vérification des headers Helmet (CSP, HSTS, etc.)
+- **Rate Limiting** : Tests des limites de requêtes (429 Too Many Requests)
+- **Optimisation images** : Vérification du format WebP et de la compression
+- **Temps de réponse** : Mesure des performances des requêtes
+- **Cache Control** : Validation des headers de cache pour les images statiques
 
 ## 📦 Dépendances Principales
 
@@ -118,6 +151,9 @@ backend/
   "jsonwebtoken": "^9.0.2",
   "bcrypt": "^6.0.0",
   "multer": "^2.0.2",
+  "sharp": "^0.33.3",
+  "helmet": "^7.1.0",
+  "express-rate-limit": "^7.2.0",
   "dotenv": "^17.2.3"
 }
 ```
